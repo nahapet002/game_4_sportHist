@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "772574096086",
+    "project_id": "guescoops",
+    "storage_bucket": "guescoops.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:772574096086:android:ef3a3242e8b26a669c7777",
+        "android_client_info": {
+          "package_name": "guescoops.alpinaa"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "772574096086-futcnatv1jdpe8cm804jp0jb8uqpbih0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAAK94JP71NsdWduDY2Bdg_sDEfTmKsE4A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "772574096086-futcnatv1jdpe8cm804jp0jb8uqpbih0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
