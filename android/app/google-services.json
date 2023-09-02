@@ -1,33 +1,33 @@
 {
   "project_info": {
-    "project_number": "772574096086",
-    "project_id": "guescoops",
-    "storage_bucket": "guescoops.appspot.com"
+    "project_number": "766645629978",
+    "project_id": "crossword-2d20d",
+    "storage_bucket": "crossword-2d20d.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:772574096086:android:ef3a3242e8b26a669c7777",
+        "mobilesdk_app_id": "1:766645629978:android:6eb870849fd9407b030da3",
         "android_client_info": {
-          "package_name": "guescoops.alpinaa"
+          "package_name": "cross.word.sport.app"
         }
       },
       "oauth_client": [
         {
-          "client_id": "772574096086-futcnatv1jdpe8cm804jp0jb8uqpbih0.apps.googleusercontent.com",
+          "client_id": "766645629978-hp40d7rkunjou94gpjljkat0m73ajidg.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyAAK94JP71NsdWduDY2Bdg_sDEfTmKsE4A"
+          "current_key": "AIzaSyBLDemfA6qpul8MgVD8Aa2xt825V7g9XBI"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "772574096086-futcnatv1jdpe8cm804jp0jb8uqpbih0.apps.googleusercontent.com",
+              "client_id": "766645629978-hp40d7rkunjou94gpjljkat0m73ajidg.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

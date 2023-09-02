@@ -9,27 +9,18 @@ class GameHomeScreen extends StatefulWidget {
   State<GameHomeScreen> createState() => _GameHomeScreenState();
 }
 
-
 class _GameHomeScreenState extends State<GameHomeScreen> {
-
-  @override
-  void initState() {
-    SystemChrome.setPreferredOrientations([
+  Future<void> deviceOrientation() async {
+    await SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitDown,
       DeviceOrientation.portraitUp,
     ]);
-    super.initState();
   }
 
   @override
-  dispose() {
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.landscapeRight,
-      DeviceOrientation.landscapeLeft,
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
-    ]);
-    super.dispose();
+  void initState() {
+    deviceOrientation();
+    super.initState();
   }
 
   @override
@@ -42,31 +33,106 @@ class _GameHomeScreenState extends State<GameHomeScreen> {
         child: Container(
           decoration: BoxDecoration(
             image: DecorationImage(
-              image: AssetImage('assets/home_screen.jpg'),
+              image: AssetImage('assets/h_s.jpg'),
               fit: BoxFit.fitHeight,
             ),
           ),
-          child: Center(
-            child: Container(
-              width: MediaQuery.of(context).size.height / 5,
-              height: MediaQuery.of(context).size.height / 5,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => GameScreen(),
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 50.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          Color.fromRGBO(108, 167, 178, 1),
+                          Colors.white,
+                        ],
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                      ),
+                      borderRadius: const BorderRadius.all(
+                        Radius.circular(100.0),
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.blueGrey.withOpacity(0.2),
+                          spreadRadius: 20,
+                          blurRadius: 10,
+                          offset: Offset(0, 3),
+                        )
+                      ]),
+                  width: MediaQuery.of(context).size.height / 6,
+                  height: MediaQuery.of(context).size.height / 6,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => Game(),
+                        ),
+                      );
+                    },
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all(
+                        Colors.transparent,
+                      ),
                     ),
-                  );
-                },
-                style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all(Colors.white),
+                    child: Container(
+                      child: Text(
+                        'History',
+                        style: TextStyle(color: Colors.white, fontSize: 32.0),
+                      ),
+                    ),
+                  ),
                 ),
-                child: Text(
-                  'Play',
-                  style: TextStyle(color: Colors.green, fontSize: 32.0),
+                Container(
+                  decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          Color.fromRGBO(108, 167, 178, 1),
+                          Colors.white,
+                        ],
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                      ),
+                      borderRadius: const BorderRadius.all(
+                        Radius.circular(100.0),
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.blueGrey.withOpacity(0.2),
+                          spreadRadius: 20,
+                          blurRadius: 10,
+                          offset: Offset(0, 3),
+                        )
+                      ]),
+                  width: MediaQuery.of(context).size.height / 6,
+                  height: MediaQuery.of(context).size.height / 6,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => Game(),
+                        ),
+                      );
+                    },
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all(
+                        Colors.transparent,
+                      ),
+                    ),
+                    child: Container(
+                      child: Text(
+                        'Rules',
+                        style: TextStyle(color: Colors.white, fontSize: 32.0),
+                      ),
+                    ),
+                  ),
                 ),
-              ),
+              ],
             ),
           ),
         ),

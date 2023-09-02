@@ -1,64 +1,59 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:game/core/shared_preferences/shared_preferences.dart';
 import 'package:game/view/dummy/game_screen/questions.dart';
-import 'package:game/view/dummy/game_screen/widgets/only_one_pointer_recognizer.dart';
-import 'package:game/view/dummy/home_screen/home_screen.dart';
 
-class GameScreen extends StatefulWidget {
+import '../home_screen/home_screen.dart';
+
+class Game extends StatefulWidget {
+  const Game({Key? key}) : super(key: key);
+
   @override
-  _GameScreenState createState() => _GameScreenState();
+  State<Game> createState() => _GameState();
 }
 
-class _GameScreenState extends State<GameScreen> {
+class _GameState extends State<Game> {
+  int currentQuestionIndex = 0;
   int score = 0;
+  int life = 3;
+  Color lifeColor = Colors.white;
+  double lifeFontSize = 28;
 
-  int _currentQuestionIndex = 0;
+  String question = '';
+  String image = '';
+  List<String> hiddenWord = [];
+  List<bool> letterRevealed = [];
 
-  int pressedIndex = -1;
-  bool isPressed = false;
   bool finish = false;
 
-  Color defaultBackgroundColor = CupertinoColors.extraLightBackgroundGray;
-  Color defaultForegroundColor = CupertinoColors.black;
+  Color buttonColor = Colors.blueGrey;
+  List<String> rightLetters = [];
+  List<String> wrongLetters = [];
 
-  Color newBackground = CupertinoColors.extraLightBackgroundGray;
-  Color newBorderColor = CupertinoColors.extraLightBackgroundGray;
-  Color newForegroundColor = CupertinoColors.black;
-  double fontSize = 20;
-
-  void checkAnswer(bool isTrue) {
-    setState(() {
-      newBorderColor = Colors.green;
-      fontSize = 28;
-    });
-    if (isTrue == true) {
-      setState(() {
-        newBackground = Colors.green;
-        score++;
-        if (score > UserPreferences().getTop1()!) {
-          UserPreferences.setTop1(score);
-        }
-      });
-    } else {
-      setState(() {
-        newBackground = Colors.red;
-        newForegroundColor = Colors.green;
-      });
-    }
+  @override
+  void initState() {
+    super.initState();
+    startNewQuestion();
   }
 
-  void _nextQuestion() async {
-    await Future.delayed(Duration(milliseconds: 1000));
-    newBackground = defaultBackgroundColor;
-    newBorderColor = defaultBackgroundColor;
-    newForegroundColor = defaultForegroundColor;
-    fontSize = 20;
-    pressedIndex = -1;
-    if (_currentQuestionIndex < questions.length - 1) {
+  void startNewQuestion() {
+    final newWord = questions[currentQuestionIndex]['answer'];
+    question = questions[currentQuestionIndex]['question'];
+    image = questions[currentQuestionIndex]['image'];
+    hiddenWord = newWord.split('');
+    letterRevealed = List.generate(newWord.length, (index) => false);
+  }
+
+  Future<void> moveToNextQuestion() async {
+    await Future.delayed(Duration(milliseconds: 500));
+    rightLetters.clear();
+    wrongLetters.clear();
+    setState(() {
+      score++;
+      life = 3;
+    });
+    if (currentQuestionIndex < questions.length - 1) {
       setState(() {
-        isPressed = false;
-        _currentQuestionIndex++;
+        currentQuestionIndex++;
+        startNewQuestion();
       });
     } else {
       setState(() {
@@ -69,152 +64,165 @@ class _GameScreenState extends State<GameScreen> {
 
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
-    Map<String, dynamic> currentQuestion = questions[_currentQuestionIndex];
     return Container(
-      width: size.width,
-      height: size.height,
       decoration: BoxDecoration(
         image: DecorationImage(
-          image: AssetImage('assets/background.jpg'),
+          image: AssetImage('assets/quiz_back.webp'),
           fit: BoxFit.fitHeight,
         ),
       ),
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(
-          automaticallyImplyLeading: true,
+          toolbarHeight: 50,
+          backgroundColor: Colors.blueGrey.withOpacity(0.6),
           foregroundColor: Colors.white,
-          backgroundColor: Colors.transparent,
           centerTitle: true,
-          title: Text(
-            'Score: $score',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 36,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
+          title:
+              Text("Question ${currentQuestionIndex + 1}/${questions.length}"),
+          actions: [
+            Icon(Icons.favorite, color: Colors.red, size: 28),
+            Text(' $life', style: TextStyle(color: lifeColor, fontSize: lifeFontSize)),
+            SizedBox(width: 10)
+          ],
         ),
-        body: Center(
-          child: finish == false
-              ? SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+        bottomNavigationBar: finish == false
+            ? Container(
+                padding: EdgeInsets.symmetric(vertical: 10.0),
+                height: 200,
+                color: Colors.black.withOpacity(0.5),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: _buildRow(
+                        ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: _buildRow(
+                        ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'],
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: _buildRow(
+                        ['Z', 'X', 'C', 'V', 'B', 'N', 'M'],
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            : null,
+        body: finish == false
+            ? SafeArea(
+                child: SingleChildScrollView(
+                  child: SizedBox(
+                    height: MediaQuery.of(context).size.height - 300,
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        Container(
-                          decoration: BoxDecoration(
-                            color: CupertinoColors.extraLightBackgroundGray,
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(12.0),
-                            child: Text(
-                              currentQuestion['question'],
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w500,
-                              ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: Center(
+                            child: Column(
+                              children: [
+                                ClipRRect(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(16.0)),
+                                  child: SizedBox(
+                                    width:
+                                        MediaQuery.of(context).size.width * 0.8,
+                                    height: 200,
+                                    child: Image(
+                                      image: AssetImage(image),
+                                      fit: BoxFit.fill,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: 20),
+                                Container(
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.8,
+                                  padding: EdgeInsets.all(8.0),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: Color.fromRGBO(108, 167, 178, 1),
+                                    ),
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(16.0),
+                                    ),
+                                    color: Color.fromRGBO(104, 147, 155, 1.0),
+                                  ),
+                                  child: Text(
+                                    question,
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
-                        SizedBox(height: size.height * 0.05),
-                        SizedBox(
-                          height: size.height / 3,
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.all(Radius.circular(16.0)),
-                            child: Image.asset(
-                              'assets/image_${_currentQuestionIndex + 1}.jpg',
-                              fit: BoxFit.fill,
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: size.height * 0.05),
-                        OnlyOnePointerRecognizerWidget(
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10.0),
                           child: SizedBox(
-                            height: size.height * 0.3,
-                            child: ListView.builder(
-                                itemCount: currentQuestion['answers'].length,
-                                itemBuilder: (BuildContext context, int index) {
-                                  var answer =
-                                      currentQuestion['answers'][index];
-                                  var correctAnswer = answer['correct_answer'];
-                                  return Column(
-                                    children: [
-                                      SizedBox(height: 5),
-                                      ElevatedButton(
-                                        style: ElevatedButton.styleFrom(
-                                          minimumSize: const Size(320, 50),
-                                          backgroundColor:
-                                              answer['answer_id'] ==
-                                                      pressedIndex
-                                                  ? newBackground
-                                                  : defaultBackgroundColor,
-                                          foregroundColor:
-                                              correctAnswer == 'true'
-                                                  ? newForegroundColor
-                                                  : defaultForegroundColor,
-                                          shape: RoundedRectangleBorder(
-                                            side: BorderSide(
-                                              color: correctAnswer == 'true'
-                                                  ? newBorderColor
-                                                  : defaultBackgroundColor,
-                                              width: isPressed == true &&
-                                                      correctAnswer == 'true'
-                                                  ? 5
-                                                  : 0,
-                                            ),
-                                            borderRadius: BorderRadius.all(
-                                              Radius.circular(12.0),
-                                            ),
-                                          ),
-                                          shadowColor: Colors.black,
-                                          elevation: 2,
-                                        ),
-                                        onPressed: () {
-                                          if (isPressed == false) {
-                                            setState(() {
-                                              pressedIndex = index;
-                                            });
-                                            correctAnswer == 'true'
-                                                ? checkAnswer(true)
-                                                : checkAnswer(false);
-                                            setState(() {
-                                              isPressed = true;
-                                            });
-                                            _nextQuestion();
-                                          }
-                                        },
-                                        child: Text(
-                                          answer['answer_text'],
-                                          style: TextStyle(
-                                            fontSize: correctAnswer == 'true'
-                                                ? fontSize
-                                                : 20,
-                                            fontWeight: FontWeight.w700,
-                                          ),
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        height: 5,
-                                      ),
-                                    ],
-                                  );
-                                }),
+                            width: 50.0 * hiddenWord.length,
+                            height: 50,
+                            child: GridView.builder(
+                              gridDelegate:
+                                  SliverGridDelegateWithFixedCrossAxisCount(
+                                mainAxisExtent: 50,
+                                crossAxisSpacing: 5,
+                                crossAxisCount: hiddenWord.length,
+                              ),
+                              itemCount: hiddenWord.length,
+                              itemBuilder: (context, index) {
+                                return Container(
+                                  height: 50,
+                                  width: 50,
+                                  constraints: BoxConstraints(
+                                    maxWidth: 50,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(12.0),
+                                    ),
+                                    color: letterRevealed[index]
+                                        ? Colors.white
+                                        : Colors.blue,
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      letterRevealed[index]
+                                          ? hiddenWord[index]
+                                          : '',
+                                      style: TextStyle(fontSize: 20),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
                           ),
                         ),
                       ],
                     ),
                   ),
-                )
-              : Container(
-                  width: size.width * 0.8,
-                  height: 250,
+                ),
+              )
+            : Center(
+                child: Container(
+                  width: MediaQuery.of(context).size.width * 0.8,
+                  height: 200,
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.black.withOpacity(0.5),
                     borderRadius: BorderRadius.all(
                       Radius.circular(24.0),
                     ),
@@ -222,60 +230,36 @@ class _GameScreenState extends State<GameScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.green,
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(24.0),
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'Current score: ',
-                              style: TextStyle(
-                                fontSize: 22,
-                                color: Colors.white,
+                      score == questions.length
+                          ? Center(
+                              child: Text(
+                                'You guessed all the words',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 28,
+                                  color: Colors.green,
+                                ),
                               ),
+                            )
+                          : Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  'Answered questions: ',
+                                  style: TextStyle(
+                                    fontSize: 22,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                Text(
+                                  '$score',
+                                  style: TextStyle(
+                                    fontSize: 32,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
                             ),
-                            Text(
-                              '$score',
-                              style: TextStyle(
-                                fontSize: 32,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.amber,
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(24.0),
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'Best score: ',
-                              style: TextStyle(
-                                fontSize: 22,
-                                color: Colors.white,
-                              ),
-                            ),
-                            Text(
-                              '${UserPreferences().getTop1()}',
-                              style: TextStyle(
-                                fontSize: 32,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
                       ElevatedButton(
                         onPressed: () {
                           Navigator.pushAndRemoveUntil(
@@ -300,8 +284,83 @@ class _GameScreenState extends State<GameScreen> {
                     ],
                   ),
                 ),
-        ),
+              ),
       ),
     );
+  }
+
+  List<Widget> _buildRow(List<String> letters) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final buttonSpacing = 8.0;
+    final totalSpacing = letters.length * buttonSpacing;
+
+    final availableWidth = screenWidth - totalSpacing;
+    final buttonWidth = availableWidth / 10;
+
+    return letters.map((letter) {
+      return Padding(
+        padding: EdgeInsets.symmetric(horizontal: buttonSpacing / 2),
+        child: SizedBox(
+          width: buttonWidth,
+          height: 50,
+          child: InkWell(
+            onTap: () async {
+              if (hiddenWord.contains(letter)) {
+                rightLetters.add(letter);
+                setState(() {
+                  for (var i = 0; i < hiddenWord.length; i++) {
+                    if (hiddenWord[i] == letter) {
+                      letterRevealed[i] = true;
+                    }
+                  }
+                });
+              } else {
+                wrongLetters.add(letter);
+                setState(() {
+                  life--;
+                  lifeFontSize = 38;
+                  lifeColor = Colors.red;
+                });
+                await Future.delayed(Duration(milliseconds: 500));
+                if (life == 0) {
+                  setState(() {
+                    finish = true;
+                  });
+                } else {
+                  setState(() {
+                    lifeFontSize = 28;
+                    lifeColor = Colors.white;
+                  });
+                }
+              }
+              if (letterRevealed.every((revealed) => revealed)) {
+                moveToNextQuestion();
+              }
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                color: rightLetters.contains(letter)
+                    ? Colors.green
+                    : wrongLetters.contains(letter)
+                        ? Colors.transparent
+                        : buttonColor,
+                borderRadius: BorderRadius.all(
+                  Radius.circular(6),
+                ),
+              ),
+              child: Center(
+                child: Text(
+                  letter,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }).toList();
   }
 }
